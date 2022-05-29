@@ -1,62 +1,86 @@
-import { useEffect, useState } from 'react';
-import {db} from './firebase/fb-utils';
-import { collection, getDocs } from "firebase/firestore";
-import _ from 'lodash';
+import {useEffect, useRef, useState} from "react"
+import {db} from "./firebase/fb-utils"
+import {collection, getDocs} from "firebase/firestore"
+import _ from "lodash"
+import { saveH, selectHeader } from "./data-selectors"
 
 const App = () => {
-  const [spanish, setSpanish] = useState();
-  const [english, setEnglish] = useState();
-  const [englishUpdated, setEnglishUpdated] = useState();
-  const [spanishUpdated, setSpanishUpdated] = useState();
+  const [original, setOriginal] = useState({});
+  const [updated, setUpdated] = useState({});
+  const [h, setH] = useState('');
+  const [ss, setSS] = useState(false);
   
-  const fetch = async () => {
-      const querySnap = await getDocs(collection(db, 'sitedata'));
+
+  
+  
+  useEffect(() => {
+    const fetch = async () => {
+      const querySnap = await getDocs(collection(db, "sitedata"))
+      var toAdd = {};
+      var toAddu = {};
       querySnap.forEach((doc) => {
-        if(doc.exists()) {
-          const data = doc.data();
-          if (data.lang === 'sp') {
-            setSpanish(data);
-            setSpanishUpdated(data);
-          } else {
-            setEnglish(data);
-            setEnglishUpdated(data);
+        if (doc.exists()) {
+          const d = doc.data();
+          if (d.lang === 'en') {
+            toAdd.english = d; 
+            toAddu.english = d; 
+          } else if (d.lang === 'sp') {
+            toAdd.spanish = d;
+            toAddu.spanish = d;
           }
         }
       });
-  }
-
-  useEffect(() => {
-    fetch();
+      setOriginal(toAdd);
+      setUpdated(toAddu);
+    }
+    fetch();  
   }, []);
-  
 
-  const handleSubmit = val => {
-    console.log(val);
-    //_.get(englishUpdated, val);
+ 
+  const handleH = val => {
+    console.log('hh');
+    setH(val);
   }
-  
+  const handleSave = v => {
+    var t = _.cloneDeep(updated);
+    t.english.navbar.navlinks.home = v
+    console.log(t);
+    console.log(original);
+    setUpdated({...t});
+
+    console.log('save');
+    console.log(original);
+  }
+  useEffect(() => {
+    console.log(original);
+    console.log('updatedo');
+  }, [original]);
+
   return (
     <div>
-      {
-      english ? 
-      <div className="App p-5">
-        <form>
-          <label className='m-3'>
-            {english.navbar.navlinks.home + ' : ' + englishUpdated.navbar.navlinks.home} 
-          </label>
-          <input></input>
-          <input type='submit' onSubmit={e => handleSubmit(e.target.value)}></input>
-        </form>
-        <h5>ORIG: {JSON.stringify(english.navbar.navlinks)}</h5>
-        <h5>UPDATED: {JSON.stringify(englishUpdated.navbar.navlinks)}</h5>
-      </div> 
-      : 
-      <div>LOADING</div>
-    }
+      {original.english && updated.english? (
+        <div className="App p-5">
+            <label className="m-3">
+              {
+                original.english.navbar.navlinks.home
+              }
+              {
+                updated.english.navbar.navlinks.home
+              }
+              
+            </label>
+            <input type='text' value={h} onChange={e => handleH(e.target.value)}></input>
+            <button onClick={() => handleSave(h)}>SAVE</button>
+            
+          
+          <h5>ORIG: {JSON.stringify(original.english.navbar.navlinks.home)}</h5>
+          <h5>UPDATED: </h5>
+        </div>
+      ) : (
+        <div>LOADING</div>
+      )}
     </div>
-    
-    
-  );
+  )
 }
 
-export default App;
+export default App
