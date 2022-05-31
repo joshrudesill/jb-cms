@@ -1,7 +1,8 @@
 import 'firebase/compat/firestore';
 import { getFirestore } from "firebase/firestore";
 import { initializeApp } from "firebase/app";
- 
+import { doc, setDoc } from "firebase/firestore"; 
+var firebaseui = require('firebaseui');
 
 const firebaseConfig = {
   apiKey: "AIzaSyAY-ONJ14CpitYenWWi5d0xy6HPiTUTYXQ",
@@ -16,5 +17,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
+export const sendData = async data => {
+  await setDoc(doc(db, 'sitedata', 'test'), data);
+}
 
 

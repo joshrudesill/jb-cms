@@ -2,8 +2,8 @@
 
 export const selectHeader = (o, n) => {
   return {
-    orig: [o.english.navbar.navlinks.home, o.spanish.navbar.navlinks.home], 
-    updated : [n.english.navbar.navlinks.home, n.spanish.navbar.navlinks.home]
+    orig: {eng : o.english.navbar, sp : o.spanish.navbar}, 
+    updated : {eng : n.english.navbar, p : n.spanish.navbar}
   };
 }
 
